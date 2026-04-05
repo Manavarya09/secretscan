@@ -117,7 +117,29 @@ fn main() -> Result<()> {
             let text = read_input(&input)?;
             let min_sev = parse_severity(&severity);
 
-            let findings = patterns::scan_all(&text);
+            let all_findings = patterns::scan_all(&text);
+
+            // Filter out allowlisted fingerprints
+            let store = Store::open(&db_path).ok();
+            let findings: Vec<_> = all_findings
+                .into_iter()
+                .filter(|f| {
+                    store.as_ref()
+                        .map(|s| !s.is_allowed(&f.fingerprint).unwrap_or(false))
+                        .unwrap_or(true)
+                })
+                .collect();
+
+            // Record findings to DB
+            if let Some(ref s) = store {
+                for f in &findings {
+                    let _ = s.record_finding(f, None, "cli");
+                }
+                if !findings.is_empty() {
+                    let _ = s.record_scan("cli", None, text.len(), findings.len(), 0);
+                }
+            }
+
             let filtered: Vec<_> = findings
                 .iter()
                 .filter(|f| f.severity >= min_sev)
