@@ -1,0 +1,37 @@
+{
+  "name": "@masyv/secretscan",
+  "version": "0.1.0",
+  "description": "SecretScan — Real-time secret & credential detector for Claude Code. 47 patterns covering Anthropic, AWS, GitHub, Stripe, database URLs, JWTs and more.",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "install-bin": "./scripts/install.sh"
+  },
+  "keywords": [
+    "claude-code",
+    "claude",
+    "secrets",
+    "security",
+    "credentials",
+    "api-keys",
+    "redaction",
+    "hook",
+    "mcp",
+    "plugin"
+  ],
+  "author": "masyv",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Manavarya09/secretscan"
+  },
+  "homepage": "https://github.com/Manavarya09/secretscan#readme",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "plugin/",
+    "hooks/",
+    "scripts/",
+    "core/src/",
+    "core/Cargo.toml"
+  ]
+}

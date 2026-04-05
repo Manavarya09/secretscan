@@ -1,0 +1,50 @@
+{
+  "name": "secretscan",
+  "description": "SecretScan — Real-time secret and credential detector. Scans text for API keys, tokens, private keys, database URLs, and 50+ other secret formats. Redacts findings with safe placeholders.",
+  "tools": [
+    {
+      "name": "secretscan_scan",
+      "description": "Scan text for secrets. Returns findings with severity, pattern name, and fingerprint. Does NOT return the actual secret value.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "description": "Text to scan" },
+          "redact": { "type": "boolean", "description": "Return redacted version (default: true)" },
+          "min_severity": { "type": "string", "enum": ["low","medium","high","critical"] }
+        },
+        "required": ["text"]
+      }
+    },
+    {
+      "name": "secretscan_expand",
+      "description": "Retrieve the original value of a redacted secret by its fingerprint. Only works if the secret was detected in this session.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string", "description": "Fingerprint from [REDACTED:type:FINGERPRINT]" }
+        },
+        "required": ["fingerprint"]
+      }
+    },
+    {
+      "name": "secretscan_allow",
+      "description": "Add a fingerprint to the allowlist so it won't be flagged again.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string" },
+          "reason": { "type": "string", "description": "Why this is safe to ignore" }
+        },
+        "required": ["fingerprint"]
+      }
+    },
+    {
+      "name": "secretscan_stats",
+      "description": "Show SecretScan statistics: total scans, secrets found, by severity breakdown.",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ]
+}
