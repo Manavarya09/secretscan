@@ -1,9 +1,28 @@
+# Rust build artifacts
 core/target/
+
+# SQLite databases (secretscan stores redacted originals locally)
 *.db
 *.db-journal
 *.db-shm
 *.db-wal
+
+# Node.js
+node_modules/
+
+# Logs
+*.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor / IDE files
 *.swp
+*.swo
+*~
 .vscode/
 .idea/
+
+# Relay
+.relay/
