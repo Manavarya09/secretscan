@@ -86,7 +86,7 @@ enum Commands {
         limit: usize,
     },
 
-    /// List all built-in patterns
+    /// List all active patterns (built-in + custom)
     Patterns,
 
     /// Auto-install hook into ~/.claude/settings.json
@@ -311,27 +311,44 @@ fn main() -> Result<()> {
         }
 
         Commands::Patterns => {
+            let builtin_count = *patterns::BUILTIN_COUNT;
+            let total = patterns::PATTERNS.len();
+            let custom_count = total - builtin_count;
+
             if cli.json {
-                let list: Vec<_> = patterns::PATTERNS.iter().map(|p| {
+                let list: Vec<_> = patterns::PATTERNS.iter().enumerate().map(|(i, p)| {
                     serde_json::json!({
                         "id": p.id,
                         "name": p.name,
-                        "severity": p.severity.as_str()
+                        "severity": p.severity.as_str(),
+                        "source": patterns::pattern_source(i)
                     })
                 }).collect();
                 println!("{}", serde_json::to_string_pretty(&list)?);
                 return Ok(());
             }
 
-            println!("{}", format!("Built-in patterns ({}):", patterns::PATTERNS.len()).bold());
-            println!("{}", "─".repeat(65));
-            for p in patterns::PATTERNS.iter() {
+            println!(
+                "{}",
+                format!(
+                    "Active patterns ({total}): {builtin_count} built-in, {custom_count} custom"
+                ).bold()
+            );
+            println!("{}", "─".repeat(75));
+            for (i, p) in patterns::PATTERNS.iter().enumerate() {
+                let source = patterns::pattern_source(i);
+                let source_tag = if source == "custom" {
+                    "[custom]".yellow().to_string()
+                } else {
+                    String::new()
+                };
                 println!(
-                    "  {} {:8}  {:<20}  {}",
+                    "  {} {:8}  {:<20}  {}  {}",
                     p.severity.emoji(),
                     format!("[{}]", p.severity.as_str().to_uppercase()),
                     p.id,
-                    p.name
+                    p.name,
+                    source_tag
                 );
             }
         }
