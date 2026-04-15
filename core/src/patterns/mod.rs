@@ -1,4 +1,5 @@
 pub mod builtin;
+pub mod custom;
 pub mod entropy;
 
 use crate::{Finding, Severity};
@@ -49,8 +50,24 @@ impl Pattern {
     }
 }
 
-/// All compiled built-in patterns, initialised once.
-pub static PATTERNS: Lazy<Vec<Pattern>> = Lazy::new(builtin::all_patterns);
+/// Number of built-in patterns (set once at init).
+pub static BUILTIN_COUNT: Lazy<usize> = Lazy::new(|| builtin::all_patterns().len());
+
+/// All compiled patterns (built-in + custom), initialised once.
+pub static PATTERNS: Lazy<Vec<Pattern>> = Lazy::new(|| {
+    let mut patterns = builtin::all_patterns();
+    let custom = custom::load_custom_patterns();
+    if !custom.is_empty() {
+        tracing::info!("Loaded {} custom pattern(s)", custom.len());
+    }
+    patterns.extend(custom);
+    patterns
+});
+
+/// Returns whether a pattern at the given index is built-in or custom.
+pub fn pattern_source(index: usize) -> &'static str {
+    if index < *BUILTIN_COUNT { "built-in" } else { "custom" }
+}
 
 /// Scan text against all registered patterns.
 pub fn scan_all(text: &str) -> Vec<Finding> {
